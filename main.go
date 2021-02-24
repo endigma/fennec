@@ -35,6 +35,10 @@ func main() {
 		log.Fatal("Bad port")
 	}
 
+	if *gate == "na" {
+		log.Fatal("Bad gate")
+	}
+
 	http.HandleFunc("/"+*gate, recieveInfo)
 	log.Fatal(http.ListenAndServe(":"+*port, nil))
 }
