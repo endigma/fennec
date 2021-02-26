@@ -1,0 +1,13 @@
+{
+    "port": "1234",
+    "handlers": [
+        {
+            "path": "/example1",
+            "run": "scripts/example1.sh"
+        },
+        {
+            "path": "/example2",
+            "run": "scripts/example2.sh"
+        }
+    ]
+}

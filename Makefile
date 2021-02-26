@@ -3,3 +3,7 @@ linux:
 	
 compressed: linux
 	@upx bin/watcher_linux_amd64
+
+run:
+	@/usr/bin/go build -o bin/watcher_linux_amd64
+	@bin/watcher_linux_amd64

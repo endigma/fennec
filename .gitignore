@@ -1,2 +1,4 @@
 bin
 tools
+config.json
+watcher.log

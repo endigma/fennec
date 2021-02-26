@@ -1,1 +1,5 @@
-watcher is a tool to execute shell scripts from webhook POST
+watcher is a tool to execute <something> from webhook POST to a particular path
+
+it requires a file titled config.json in the working directory
+
+example config in repo
