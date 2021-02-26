@@ -13,6 +13,7 @@ import (
 )
 
 var config Config
+var basePath string
 
 // Config contains the config for the application
 type Config struct {
@@ -26,6 +27,11 @@ type Handler struct {
 	Run  string `json:"run"`
 }
 
+func (h Handler) run() {
+	exec.Command(h.Run).Run()
+	log.Infof("Ran Handler: %s", h.Run)
+}
+
 func checkErr(err error) {
 	if err != nil {
 		log.Fatal(err)
@@ -33,11 +39,8 @@ func checkErr(err error) {
 }
 
 func unpackConfig() Config {
-	ex, err := os.Executable()
-	checkErr(err)
-	path := filepath.Dir(ex)
 
-	configFile, err := os.Open(path + "/config.json")
+	configFile, err := os.Open(basePath + "/config.json")
 	checkErr(err)
 
 	defer configFile.Close()
@@ -77,9 +80,7 @@ func catch(rw http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(rw, "Request is being handled.\n")
 	log.Infof("Recieved Request: %s", req.URL.Path)
 
-	exec.Command(h.Run).Run()
-
-	log.Infof("Ran Handler: %s", h.Run)
+	go h.run()
 }
 
 func ip(r *http.Request) string {
@@ -91,6 +92,11 @@ func ip(r *http.Request) string {
 }
 
 func init() {
+	ex, err := os.Executable()
+	checkErr(err)
+
+	basePath = filepath.Dir(ex)
+
 	logfmt := new(log.TextFormatter)
 	logfmt.TimestampFormat = "2006-01-02 15:04:05"
 	logfmt.FullTimestamp = true

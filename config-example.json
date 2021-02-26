@@ -3,11 +3,13 @@
     "handlers": [
         {
             "path": "/example1",
-            "run": "scripts/example1.sh"
+
+            // Absolute paths only! (I mean relative might work but inconsistently)
+            "run": "/scripts/example1.sh"
         },
         {
             "path": "/example2",
-            "run": "scripts/example2.sh"
+            "run": "/scripts/example2.sh"
         }
     ]
 }
