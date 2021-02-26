@@ -3,11 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -33,8 +33,9 @@ func checkErr(err error) {
 }
 
 func unpackConfig() Config {
-	path, err := os.Getwd()
+	ex, err := os.Executable()
 	checkErr(err)
+	path := filepath.Dir(ex)
 
 	configFile, err := os.Open(path + "/config.json")
 	checkErr(err)
@@ -94,12 +95,6 @@ func init() {
 	logfmt.TimestampFormat = "2006-01-02 15:04:05"
 	logfmt.FullTimestamp = true
 	log.SetFormatter(logfmt)
-
-	f, err := os.OpenFile("watcher.log", os.O_WRONLY|os.O_CREATE, 0755)
-	checkErr(err)
-
-	mw := io.MultiWriter(os.Stdout, f)
-	log.SetOutput(mw)
 
 	config = unpackConfig()
 }
