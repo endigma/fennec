@@ -20,3 +20,5 @@ most errors are self-explanatory, ask me on #go-nuts or create a github issue if
 ## docker support
 
 it has it for some reason, if this fits your use case go for it
+
+it's based on distroless because yes so if you want it to run shell scripts you'll need to include shell
