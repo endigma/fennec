@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"flag"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -14,6 +14,7 @@ import (
 
 var config Config
 var basePath string
+var debug = flag.Bool("d", false, "debug information")
 
 // Config contains the config for the application
 type Config struct {
@@ -21,15 +22,35 @@ type Config struct {
 	Handlers []Handler `json:"handlers"`
 }
 
+// Req contains a request item
+type Req struct {
+	IP   string
+	Path string
+
+	Secret string `json:"secret"`
+}
+
 // Handler contains info about a handler
 type Handler struct {
-	Path string `json:"path"`
-	Run  string `json:"run"`
+	Path    string `json:"path"`
+	Command string `json:"command"`
+	Secret  string `json:"secret"`
 }
 
 func (h Handler) run() {
-	exec.Command(h.Run).Run()
-	log.Infof("Ran Handler: %s", h.Run)
+	err := exec.Command(h.Command).Run()
+
+	if err != nil {
+		log.WithFields(log.Fields{
+			"cmd": h.Command,
+		}).Warn("Error Running Handler")
+		log.Warn(err)
+	} else {
+		log.WithFields(log.Fields{
+			"cmd": h.Command,
+		}).Info("Ran Handler")
+	}
+
 }
 
 func checkErr(err error) {
@@ -39,7 +60,6 @@ func checkErr(err error) {
 }
 
 func unpackConfig() Config {
-
 	configFile, err := os.Open(basePath + "/config.json")
 	checkErr(err)
 
@@ -58,6 +78,17 @@ func unpackConfig() Config {
 	return config
 }
 
+func unpackReq(req *http.Request) (Req, error) {
+	var request Req
+	request.Path = req.URL.Path
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		return Req{}, err
+	}
+
+	return request, nil
+}
+
 func getHandler(query string) (int, Handler) {
 	for _, h := range config.Handlers {
 		if h.Path == query {
@@ -68,19 +99,47 @@ func getHandler(query string) (int, Handler) {
 }
 
 func catch(rw http.ResponseWriter, req *http.Request) {
-	stat, h := getHandler(req.URL.Path)
-	if stat != 0 {
-		log.WithFields(log.Fields{
-			"ip": ip(req),
-		}).Warnf("Request Dropped: %s", req.URL.Path)
-		fmt.Fprintf(rw, "Fuck off %s!\n", ip(req))
-		return
+	if req.Method == "POST" {
+		log.Debug("HI")
+
+		request, err := unpackReq(req)
+		if err != nil {
+			logReq(req, "Dropped", "Invalid JSON")
+			rw.WriteHeader(http.StatusBadRequest)
+
+			return
+		}
+
+		stat, handler := getHandler(request.Path)
+		if stat != 0 {
+			logReq(req, "Dropped", "Invalid Path")
+			rw.WriteHeader(http.StatusNotFound)
+
+			return
+		}
+
+		if request.Secret != handler.Secret {
+			logReq(req, "Refused", "Incorrect Secret")
+			rw.WriteHeader(http.StatusUnauthorized)
+
+			return
+
+		}
+
+		logReq(req, "Accepted", "OK")
+		rw.WriteHeader(http.StatusOK)
+
+		go handler.run()
+	} else {
+		rw.WriteHeader(http.StatusMethodNotAllowed)
 	}
+}
 
-	fmt.Fprintf(rw, "Request is being handled.\n")
-	log.Infof("Recieved Request: %s", req.URL.Path)
-
-	go h.run()
+func logReq(req *http.Request, status string, msg string) {
+	log.WithFields(log.Fields{
+		"path": req.URL.Path,
+		"ip":   ip(req),
+	}).Infof("Request %s: %s", status, msg)
 }
 
 func ip(r *http.Request) string {
@@ -92,6 +151,12 @@ func ip(r *http.Request) string {
 }
 
 func init() {
+	flag.Parse()
+
+	if *debug {
+		log.SetLevel(log.DebugLevel)
+	}
+
 	ex, err := os.Executable()
 	checkErr(err)
 
@@ -101,6 +166,7 @@ func init() {
 	logfmt.TimestampFormat = "2006-01-02 15:04:05"
 	logfmt.FullTimestamp = true
 	log.SetFormatter(logfmt)
+	log.SetOutput(os.Stdout)
 
 	config = unpackConfig()
 }

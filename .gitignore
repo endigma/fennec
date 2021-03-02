@@ -1,4 +1,5 @@
 bin
+tmp
 tools
 config.json
 watcher.log

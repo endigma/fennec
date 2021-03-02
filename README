@@ -2,6 +2,6 @@ watcher is a tool to execute <something> from webhook POST to a particular path
 
 it requires a file titled config.json in the working directory
 
-example config in repo
+example config in repo, you have to remove the comments.
 
 it does not and can not log errors when it attempts to run a command, just fix your config and check file perms
