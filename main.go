@@ -61,7 +61,6 @@ func checkErr(err error) {
 
 func unpackConfig() Config {
 	configFile, err := os.Open(os.Args[1])
-	// configFile, err := os.Open(basePath + "/config.json")
 	checkErr(err)
 
 	defer configFile.Close()
