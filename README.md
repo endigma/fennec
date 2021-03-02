@@ -16,3 +16,7 @@ it requires a parameter for a path to a config file
 example config in repo, you have to remove the comments.
 
 most errors are self-explanatory, ask me on #go-nuts or create a github issue if something is really broken.
+
+## docker support
+
+it has it for some reason, if this fits your use case go for it

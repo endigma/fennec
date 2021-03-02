@@ -1,0 +1,11 @@
+version: "3"
+services:
+  fennec:
+    container_name: fennec
+    build: .
+    environment:
+      DOCKER: "TRUE"
+    volumes:
+      - ./config-example.json:/assets/config.json
+    ports:
+      - "1234:1234"
