@@ -60,7 +60,8 @@ func checkErr(err error) {
 }
 
 func unpackConfig() Config {
-	configFile, err := os.Open(basePath + "/config.json")
+	configFile, err := os.Open(os.Args[1])
+	// configFile, err := os.Open(basePath + "/config.json")
 	checkErr(err)
 
 	defer configFile.Close()
@@ -152,6 +153,13 @@ func ip(r *http.Request) string {
 
 func init() {
 	flag.Parse()
+	if len(os.Args) == 1 {
+		log.Fatal("Please provide a valid config file.")
+	}
+
+	if _, err := os.Stat(os.Args[1]); os.IsNotExist(err) {
+		log.Fatal("Please provide a valid config file.")
+	}
 
 	if *debug {
 		log.SetLevel(log.DebugLevel)
