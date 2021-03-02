@@ -1,5 +1,5 @@
-# watcher
-watcher is a tool to execute <something> from webhook POST to a particular path
+# fennec
+fennec is a tool to execute <something> from webhook POST to a particular path
 
 it expects a field as part of the JSON POST called "secret" like:
 
@@ -11,8 +11,7 @@ it expects a field as part of the JSON POST called "secret" like:
 
 which must match with the secret in the config in order for it to be executed.
 
-it requires a file titled config.json in the working directory
-- todo: make this a parameter
+it requires a parameter for a path to a config file
 
 example config in repo, you have to remove the comments.
 
