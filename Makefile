@@ -1,4 +1,4 @@
-development:
+build:
 	@go build -o bin/fennec
 
 docker:
