@@ -100,8 +100,6 @@ func getHandler(query string) (int, Handler) {
 
 func catch(rw http.ResponseWriter, req *http.Request) {
 	if req.Method == "POST" {
-		log.Debug("HI")
-
 		request, err := unpackReq(req)
 		if err != nil {
 			logReq(req, "Dropped", "Invalid JSON")
