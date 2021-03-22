@@ -5,9 +5,12 @@ it expects a field as part of the JSON POST called "secret" like:
 
 ```json
 {
-    "secret": "secret-string"
+    "secret": "secret-string",
+    "data": ["b", "f", "21"]
 }
 ```
+
+there is also a field called "data" that can accept any data type, this will be appended as JSON to your script, if enabled.
 
 which must match with the secret in the config in order for it to be executed.
 

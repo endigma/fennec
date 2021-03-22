@@ -27,27 +27,39 @@ type Req struct {
 	IP   string
 	Path string
 
-	Secret string `json:"secret"`
+	Secret string      `json:"secret"`
+	Data   interface{} `json:"data"`
 }
 
 // Handler contains info about a handler
 type Handler struct {
-	Path    string `json:"path"`
-	Command string `json:"command"`
-	Secret  string `json:"secret"`
+	Path        string `json:"path"`
+	Command     string `json:"command"`
+	ForwardData bool   `json:"forwarddata"`
+	Secret      string `json:"secret"`
 }
 
-func (h Handler) run() {
-	err := exec.Command(h.Command).Run()
+func (h Handler) run(data interface{}) {
+	var err error
+
+	d, err := json.Marshal(data)
+
+	if h.ForwardData {
+		err = exec.Command(h.Command, string(d)).Run()
+	} else {
+		err = exec.Command(h.Command).Run()
+	}
 
 	if err != nil {
 		log.WithFields(log.Fields{
-			"cmd": h.Command,
+			"cmd":  h.Command,
+			"args": string(d),
 		}).Warn("Error Running Handler")
 		log.Warn(err)
 	} else {
 		log.WithFields(log.Fields{
-			"cmd": h.Command,
+			"cmd":  h.Command,
+			"args": string(d),
 		}).Info("Ran Handler")
 	}
 
@@ -116,6 +128,8 @@ func catch(rw http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		log.Info(request.Data)
+
 		if request.Secret != handler.Secret {
 			logReq(req, "Refused", "Incorrect Secret")
 			rw.WriteHeader(http.StatusUnauthorized)
@@ -127,7 +141,7 @@ func catch(rw http.ResponseWriter, req *http.Request) {
 		logReq(req, "Accepted", "OK")
 		rw.WriteHeader(http.StatusOK)
 
-		go handler.run()
+		go handler.run(request.Data)
 	} else {
 		rw.WriteHeader(http.StatusMethodNotAllowed)
 	}

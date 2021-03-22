@@ -4,12 +4,15 @@
         {
             "path": "/example1",
             "run": "/scripts/example1.sh",
-            "secret": "password1"
+            "secret": "password1",
+            "forwarddata": true
+            
         },
         {
             "path": "/example2",
             "run": "/scripts/example2.sh",
-            "secret": "password1"
+            "secret": "password1",
+            "forwarddata": true
         }
     ]
 }
