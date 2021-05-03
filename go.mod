@@ -1,4 +1,4 @@
-module git.cya.cx/endigma/fennec
+module gitcat.ca/endigma/fennec
 
 go 1.15
 
